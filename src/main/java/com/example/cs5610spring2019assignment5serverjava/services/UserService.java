@@ -21,6 +21,7 @@ public class UserService {
 	public Person register(@RequestBody Person user,
 			HttpSession session) {
 		session.setAttribute("currentUser", user);
+		user.setId(IdGenerator.generateId(CourseService.class));
 		users.add(user);
 		return user;
 	}
@@ -54,7 +55,7 @@ public class UserService {
 		return users;
 	}
 
-	@GetMapping("/api/user/{id}")
+	@GetMapping("/api/users/{id}")
 	Person findUserById(@PathVariable("id") int id) {
 		for(Person user : users)
 			if(user.getId() == id)
