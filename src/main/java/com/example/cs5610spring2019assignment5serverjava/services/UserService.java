@@ -35,4 +35,17 @@ public class UserService {
 		session.invalidate();
 	}
 
+	@PostMapping("/api/login")
+	public Person login(	@RequestBody Person credentials,
+	HttpSession session) {
+	 for (Person user : users) {
+	  if( user.getUsername().equals(credentials.getUsername())
+	   && user.getPassword().equals(credentials.getPassword())) {
+	    session.setAttribute("currentUser", user);
+	    return user;
+	  }
+	 }
+	 return null;
+	}
+
 }
