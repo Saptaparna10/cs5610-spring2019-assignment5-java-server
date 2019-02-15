@@ -6,6 +6,7 @@ public class Course {
 	private int id;
 	private String title;
 	private List<Module> modules;
+	
 	public int getId() {
 		return id;
 	}

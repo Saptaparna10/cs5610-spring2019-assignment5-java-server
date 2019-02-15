@@ -4,6 +4,8 @@ import java.util.*;
 
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,17 +15,24 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.cs5610spring2019assignment5serverjava.models.Person;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials="true") 
 public class UserService {
 
 	List<Person> users = new ArrayList<Person>();
 
 	@PostMapping("/api/register")
-	public Person register(@RequestBody Person user,
+	public Person register(@RequestBody Person newUser,
 			HttpSession session) {
-		session.setAttribute("currentUser", user);
-		user.setId(IdGenerator.generateId(CourseService.class));
-		users.add(user);
-		return user;
+		
+		for (Person user : users) {
+			if(user.getUsername().equals(newUser.getUsername())) {
+				return null;
+			}
+		}
+		newUser.setId(IdGenerator.generateId(CourseService.class));
+		newUser.setCourses(new ArrayList<>());
+		users.add(newUser);
+		return newUser;
 	}
 
 	@GetMapping("/api/profile")

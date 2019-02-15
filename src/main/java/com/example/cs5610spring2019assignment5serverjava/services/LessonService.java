@@ -3,7 +3,10 @@ package com.example.cs5610spring2019assignment5serverjava.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,8 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.cs5610spring2019assignment5serverjava.models.Course;
 import com.example.cs5610spring2019assignment5serverjava.models.Lesson;
 import com.example.cs5610spring2019assignment5serverjava.models.Module;
+import com.example.cs5610spring2019assignment5serverjava.models.Person;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials="true")
 public class LessonService {
 	
 	@Autowired
@@ -25,17 +30,23 @@ public class LessonService {
 	@Autowired
 	CourseService cs;
 	
+	Person currentUser;
+	
 	@PostMapping("/api/modules/{mid}/lessons")
 	public Lesson createLesson(
+			HttpSession session,
 			@PathVariable("mid") int mid,
 			@RequestBody Lesson lesson) {
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
 
-		Module module = ms.findModuleById(mid);
+		Module module = ms.findModuleById(session, mid);
 
 		if(module!=null) {
 			lesson.setId(IdGenerator.generateId(LessonService.class));
-			if(module.getLessons()==null)
-				module.setLessons(new ArrayList<>());
+			if(lesson.getTopics()==null)
+				lesson.setTopics(new ArrayList<>());
 			module.getLessons().add(lesson);
 			return lesson;
 		}
@@ -43,8 +54,12 @@ public class LessonService {
 	}
 	
 	@GetMapping("/api/modules/{mid}/lessons")
-	public List<Lesson> findAllLessons(@PathVariable("mid") int mid){
-		Module module = ms.findModuleById(mid);
+	public List<Lesson> findAllLessons(HttpSession session, @PathVariable("mid") int mid){
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
+		
+		Module module = ms.findModuleById(session, mid);
 		if(module!=null) {
 			return module.getLessons();
 		}
@@ -52,8 +67,12 @@ public class LessonService {
 	}
 
 	@GetMapping("/api/lessons/{lid}")
-	public Lesson findLessonById(@PathVariable("lid") int lid){
-		List<Course> courses = cs.findAllCourses();
+	public Lesson findLessonById(HttpSession session, @PathVariable("lid") int lid){
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
+		
+		List<Course> courses = cs.findAllCourses(session);
 		if(courses==null)
 			return null;
 		
@@ -69,9 +88,13 @@ public class LessonService {
 	}
 	
 	@PutMapping("/api/lessons/{lid}")
-	public Lesson updateLesson(@PathVariable("lid") int lid, 
+	public Lesson updateLesson(HttpSession session, @PathVariable("lid") int lid, 
 			@RequestBody Lesson lesson) {
-		Lesson les= findLessonById(lid);
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
+		
+		Lesson les= findLessonById(session, lid);
 		if(les!=null) {
 			les.setTopics(lesson.getTopics());
 			les.setTitle(lesson.getTitle());
@@ -82,9 +105,12 @@ public class LessonService {
 
 	@DeleteMapping("/api/lessons/{lid}")
 	public List<Lesson> deleteLesson
-	(@PathVariable("lid") int lid) {
+	(HttpSession session, @PathVariable("lid") int lid) {
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
 
-		List<Course> courses = cs.findAllCourses();
+		List<Course> courses = cs.findAllCourses(session);
 		if(courses==null)
 			return null;
 

@@ -1,5 +1,7 @@
 package com.example.cs5610spring2019assignment5serverjava.models;
 
+import java.util.List;
+
 public class Person {
 
 	private long id;
@@ -8,14 +10,17 @@ public class Person {
 	private String firstName;
 	private String lastName;
 	private String role; 
+	private List<Course> courses;
 	
-	public Person() {}
-	public Person(long id, String username, String firstName, String lastName, String role) {
+	public Person() {};
+	
+	public Person(long id, String username, String firstName, String lastName, String role,  List<Course> courses) {
 		this.id = id;
 		this.username = username;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.role = role;
+		this.courses = courses;
 	}
 	
 	public String getRole() {
@@ -54,5 +59,10 @@ public class Person {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-
+	public List<Course> getCourses() {
+		return courses;
+	}
+	public void setCourses(List<Course> courses) {
+		this.courses = courses;
+	}
 }

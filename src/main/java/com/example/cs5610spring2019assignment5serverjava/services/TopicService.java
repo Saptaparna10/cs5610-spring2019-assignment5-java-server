@@ -3,7 +3,10 @@ package com.example.cs5610spring2019assignment5serverjava.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.cs5610spring2019assignment5serverjava.models.Course;
 import com.example.cs5610spring2019assignment5serverjava.models.Lesson;
 import com.example.cs5610spring2019assignment5serverjava.models.Module;
+import com.example.cs5610spring2019assignment5serverjava.models.Person;
 import com.example.cs5610spring2019assignment5serverjava.models.Topic;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials="true")
 public class TopicService {
 	
 	@Autowired
@@ -29,17 +34,23 @@ public class TopicService {
 	@Autowired
 	CourseService cs;
 	
+	Person currentUser;
+	
 	@PostMapping("/api/lessons/{lid}/topics")
 	public Topic createTopic(
+			HttpSession session,
 			@PathVariable("lid") int lid,
 			@RequestBody Topic topic) {
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
 
-		Lesson lesson = ls.findLessonById(lid);
+		Lesson lesson = ls.findLessonById(session,lid);
 
 		if(lesson!=null) {
 			topic.setId(IdGenerator.generateId(TopicService.class));
-			if(lesson.getTopics()==null)
-				lesson.setTopics(new ArrayList<>());
+			if(topic.getWidgets()==null)
+				topic.setWidgets(new ArrayList<>());
 			lesson.getTopics().add(topic);
 			return topic;
 		}
@@ -47,8 +58,12 @@ public class TopicService {
 	}
 	
 	@GetMapping("/api/lessons/{lid}/topics")
-	public List<Topic> findAllTopics(@PathVariable("lid") int lid){
-		Lesson lesson = ls.findLessonById(lid);
+	public List<Topic> findAllTopics(HttpSession session,@PathVariable("lid") int lid){
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
+		
+		Lesson lesson = ls.findLessonById(session, lid);
 		if(lesson!=null) {
 			return lesson.getTopics();
 		}
@@ -56,8 +71,12 @@ public class TopicService {
 	}
 
 	@GetMapping("/api/topics/{tid}")
-	public Topic findTopicById(@PathVariable("tid") int tid){
-		List<Course> courses = cs.findAllCourses();
+	public Topic findTopicById(HttpSession session,@PathVariable("tid") int tid){
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
+		
+		List<Course> courses = cs.findAllCourses(session);
 		if(courses==null)
 			return null;
 		
@@ -75,9 +94,13 @@ public class TopicService {
 	}
 	
 	@PutMapping("/api/topics/{tid}")
-	public Topic updateTopic(@PathVariable("tid") int tid, 
+	public Topic updateTopic(HttpSession session, @PathVariable("tid") int tid, 
 			@RequestBody Topic topic) {
-		Topic top= findTopicById(tid);
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
+		
+		Topic top= findTopicById(session,tid);
 		if(top!=null) {
 			top.setWidgets(topic.getWidgets());
 			top.setTitle(topic.getTitle());
@@ -88,9 +111,12 @@ public class TopicService {
 
 	@DeleteMapping("/api/topics/{tid}")
 	public List<Topic> deleteTopic
-	(@PathVariable("tid") int tid) {
+	(HttpSession session,@PathVariable("tid") int tid) {
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
 
-		List<Course> courses = cs.findAllCourses();
+		List<Course> courses = cs.findAllCourses(session);
 		if(courses==null)
 			return null;
 

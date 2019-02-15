@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,24 +19,32 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cs5610spring2019assignment5serverjava.models.Course;
 import com.example.cs5610spring2019assignment5serverjava.models.Module;
+import com.example.cs5610spring2019assignment5serverjava.models.Person;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials="true")
 public class ModuleService {
 
 	@Autowired
 	CourseService cs;
 
+	Person currentUser;
+	
 	@PostMapping("/api/courses/{cid}/modules")
-	public Module createCourse(
+	public Module createModule(
+			HttpSession session,
 			@PathVariable("cid") int cid,
 			@RequestBody Module module) {
 
-		Course course = cs.findCourseById(cid);
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
+		
+		Course course = cs.findCourseById(session, cid);
 
 		if(course!=null) {
 			module.setId(IdGenerator.generateId(ModuleService.class));
-			if(course.getModules()==null)
-				course.setModules(new ArrayList<>());
+			if(module.getLessons()==null)
+				module.setLessons(new ArrayList<>());
 			course.getModules().add(module);
 			return module;
 		}
@@ -41,8 +52,12 @@ public class ModuleService {
 	}
 
 	@GetMapping("/api/courses/{cid}/modules")
-	public List<Module> findAllModules(@PathVariable("cid") int cid){
-		Course course = cs.findCourseById(cid);
+	public List<Module> findAllModules(HttpSession session, @PathVariable("cid") int cid){
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
+		
+		Course course = cs.findCourseById(session, cid);
 		if(course!=null) {
 			return course.getModules();
 		}
@@ -50,8 +65,12 @@ public class ModuleService {
 	}
 
 	@GetMapping("/api/modules/{mid}")
-	public Module findModuleById(@PathVariable("mid") int mid){
-		List<Course> courses = cs.findAllCourses();
+	public Module findModuleById(HttpSession session, @PathVariable("mid") int mid){
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
+		
+		List<Course> courses = cs.findAllCourses(session);
 		if(courses==null)
 			return null;
 		for(Course course: courses) {
@@ -68,9 +87,13 @@ public class ModuleService {
 	}
 
 	@PutMapping("/api/modules/{mid}")
-	public Module updateModule(@PathVariable("mid") int mid, 
+	public Module updateModule(HttpSession session, @PathVariable("mid") int mid, 
 			@RequestBody Module module) {
-		Module mod= findModuleById(mid);
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
+		
+		Module mod= findModuleById(session, mid);
 		if(mod!=null) {
 			mod.setLessons(module.getLessons());
 			mod.setTitle(module.getTitle());
@@ -81,9 +104,12 @@ public class ModuleService {
 
 	@DeleteMapping("/api/modules/{mid}")
 	public List<Module> deleteModule
-	(@PathVariable("mid") int mid) {
+	(HttpSession session, @PathVariable("mid") int mid) {
+		
+		currentUser = (Person) session.getAttribute("currentUser");
+		if(currentUser==null) return null;
 
-		List<Course> courses = cs.findAllCourses();
+		List<Course> courses = cs.findAllCourses(session);
 		if(courses==null)
 			return null;
 
