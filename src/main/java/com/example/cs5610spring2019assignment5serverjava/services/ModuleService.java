@@ -22,7 +22,7 @@ import com.example.cs5610spring2019assignment5serverjava.models.Module;
 import com.example.cs5610spring2019assignment5serverjava.models.Person;
 
 @RestController
-@CrossOrigin(origins = "https://damp-earth-67754.herokuapp.com", allowCredentials="true")
+@CrossOrigin(origins = "https://glacial-gorge-34114.herokuapp.com", allowCredentials="true")
 public class ModuleService {
 
 	@Autowired
