@@ -22,7 +22,7 @@ import com.example.cs5610spring2019assignment5serverjava.models.Person;
 import com.example.cs5610spring2019assignment5serverjava.models.Topic;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials="true")
+@CrossOrigin(origins = "https://damp-earth-67754.herokuapp.com", allowCredentials="true")
 public class TopicService {
 	
 	@Autowired
