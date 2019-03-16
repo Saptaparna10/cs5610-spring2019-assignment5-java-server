@@ -16,7 +16,7 @@ import com.example.cs5610spring2019assignment5serverjava.models.Person;
 import com.example.cs5610spring2019assignment5serverjava.repositories.PersonRepository;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials="true") 
+@CrossOrigin(origins = "https://das-saptaparna-assignment5.herokuapp.com", allowCredentials="true") 
 public class UserService {
 
 	//List<Person> users = new ArrayList<Person>();

@@ -13,7 +13,7 @@ import com.example.cs5610spring2019assignment5serverjava.repositories.WidgetRepo
 
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials="true")
+@CrossOrigin(origins = "https://das-saptaparna-assignment5.herokuapp.com", allowCredentials="true")
 public class WidgetService {
 
 	@Autowired

@@ -26,7 +26,7 @@ import com.example.cs5610spring2019assignment5serverjava.repositories.LessonRepo
 import com.example.cs5610spring2019assignment5serverjava.repositories.TopicRepository;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials="true")
+@CrossOrigin(origins = "https://das-saptaparna-assignment5.herokuapp.com", allowCredentials="true")
 public class TopicService {
 	
 	@Autowired
