@@ -2,11 +2,33 @@ package com.example.cs5610spring2019assignment5serverjava.models;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@Entity
 public class Module {
 	
+	@Id  
+	@GeneratedValue
+	(strategy=GenerationType.IDENTITY)
 	private int id;
 	private String title;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JsonIgnore
+	private Course course;
+	
+	@OneToMany(mappedBy="module",cascade=CascadeType.ALL,orphanRemoval=true, fetch = FetchType.LAZY)
 	private List<Lesson> lessons;
+	
 	public int getId() {
 		return id;
 	}
@@ -56,6 +78,12 @@ public class Module {
 		} else if (!title.equals(other.title))
 			return false;
 		return true;
+	}
+	public Course getCourse() {
+		return course;
+	}
+	public void setCourse(Course course) {
+		this.course = course;
 	}
 	
 	

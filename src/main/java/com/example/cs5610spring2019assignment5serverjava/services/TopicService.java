@@ -2,6 +2,7 @@ package com.example.cs5610spring2019assignment5serverjava.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpSession;
 
@@ -20,9 +21,12 @@ import com.example.cs5610spring2019assignment5serverjava.models.Lesson;
 import com.example.cs5610spring2019assignment5serverjava.models.Module;
 import com.example.cs5610spring2019assignment5serverjava.models.Person;
 import com.example.cs5610spring2019assignment5serverjava.models.Topic;
+import com.example.cs5610spring2019assignment5serverjava.models.Widget;
+import com.example.cs5610spring2019assignment5serverjava.repositories.LessonRepository;
+import com.example.cs5610spring2019assignment5serverjava.repositories.TopicRepository;
 
 @RestController
-@CrossOrigin(origins = "https://glacial-gorge-34114.herokuapp.com", allowCredentials="true")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials="true")
 public class TopicService {
 	
 	@Autowired
@@ -33,6 +37,9 @@ public class TopicService {
 	
 	@Autowired
 	CourseService cs;
+	
+	@Autowired
+	TopicRepository repository;
 	
 	Person currentUser;
 	
@@ -48,11 +55,8 @@ public class TopicService {
 		Lesson lesson = ls.findLessonById(session,lid);
 
 		if(lesson!=null) {
-			topic.setId(IdGenerator.generateId(TopicService.class));
-			if(topic.getWidgets()==null)
-				topic.setWidgets(new ArrayList<>());
-			lesson.getTopics().add(topic);
-			return topic;
+			topic.setLesson(lesson);
+			return repository.save(topic);
 		}
 		return null;
 	}
@@ -60,9 +64,14 @@ public class TopicService {
 	@GetMapping("/api/lessons/{lid}/topics")
 	public List<Topic> findAllTopics(HttpSession session,@PathVariable("lid") int lid){
 		
-		currentUser = (Person) session.getAttribute("currentUser");
-		if(currentUser==null) return null;
-		
+//		currentUser = (Person) session.getAttribute("currentUser");
+//		if(currentUser==null) return null;
+//		
+//		Lesson lesson = ls.findLessonById(session, lid);
+//		if(lesson!=null) {
+//			return lesson.getTopics();
+//		}
+//		return null;
 		Lesson lesson = ls.findLessonById(session, lid);
 		if(lesson!=null) {
 			return lesson.getTopics();
@@ -76,21 +85,26 @@ public class TopicService {
 		currentUser = (Person) session.getAttribute("currentUser");
 		if(currentUser==null) return null;
 		
-		List<Course> courses = cs.findAllCourses(session);
-		if(courses==null)
-			return null;
-		
-		for(Course course: courses) {
-			for(Module module: course.getModules()) {
-				for(Lesson lesson: module.getLessons()) {
-					for(Topic topic: lesson.getTopics()) {
-						if(topic.getId()==tid)
-							return topic;
-					}
-				}
-			}
-		}
-		return null;
+//		List<Course> courses = cs.findAllCourses(session);
+//		if(courses==null)
+//			return null;
+//		
+//		for(Course course: courses) {
+//			for(Module module: course.getModules()) {
+//				for(Lesson lesson: module.getLessons()) {
+//					for(Topic topic: lesson.getTopics()) {
+//						if(topic.getId()==tid)
+//							return topic;
+//					}
+//				}
+//			}
+//		}
+//		return null;
+		Optional<Topic> op = repository.findById(tid);
+		Topic topic = null;
+		if (op.isPresent())
+			topic = op.get();
+		return topic;
 	}
 	
 	@PutMapping("/api/topics/{tid}")
@@ -100,13 +114,16 @@ public class TopicService {
 		currentUser = (Person) session.getAttribute("currentUser");
 		if(currentUser==null) return null;
 		
-		Topic top= findTopicById(session,tid);
-		if(top!=null) {
-			top.setWidgets(topic.getWidgets());
-			top.setTitle(topic.getTitle());
-			return top;
-		}
-		return null;
+//		Topic top= findTopicById(session,tid);
+//		if(top!=null) {
+//			top.setWidgets(topic.getWidgets());
+//			top.setTitle(topic.getTitle());
+//			return top;
+//		}
+//		return null;
+		Topic temp = findTopicById(session, tid);
+		temp.setTitle(topic.getTitle());
+		return repository.save(temp);
 	}
 
 	@DeleteMapping("/api/topics/{tid}")
@@ -116,24 +133,26 @@ public class TopicService {
 		currentUser = (Person) session.getAttribute("currentUser");
 		if(currentUser==null) return null;
 
-		List<Course> courses = cs.findAllCourses(session);
-		if(courses==null)
-			return null;
-
-		for(Course course: courses) {
-			for(Module module: course.getModules()) {
-				for(Lesson lesson: module.getLessons()) {
-					for(Topic topic: lesson.getTopics()) {
-						if(topic.getId()==tid) {
-							lesson.getTopics().remove(topic);
-							return lesson.getTopics();
-						}
-					}
-				}
-			}
-		}
-
-		return null;
+//		List<Course> courses = cs.findAllCourses(session);
+//		if(courses==null)
+//			return null;
+//
+//		for(Course course: courses) {
+//			for(Module module: course.getModules()) {
+//				for(Lesson lesson: module.getLessons()) {
+//					for(Topic topic: lesson.getTopics()) {
+//						if(topic.getId()==tid) {
+//							lesson.getTopics().remove(topic);
+//							return lesson.getTopics();
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		return null;
+		repository.deleteById(tid);
+		return findAllTopics(session, findTopicById(session, tid).getLesson().getId());
 	}
 
 

@@ -2,6 +2,7 @@ package com.example.cs5610spring2019assignment5serverjava.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpSession;
 
@@ -19,9 +20,11 @@ import com.example.cs5610spring2019assignment5serverjava.models.Course;
 import com.example.cs5610spring2019assignment5serverjava.models.Lesson;
 import com.example.cs5610spring2019assignment5serverjava.models.Module;
 import com.example.cs5610spring2019assignment5serverjava.models.Person;
+import com.example.cs5610spring2019assignment5serverjava.repositories.LessonRepository;
+import com.example.cs5610spring2019assignment5serverjava.repositories.ModuleRepository;
 
 @RestController
-@CrossOrigin(origins = "https://glacial-gorge-34114.herokuapp.com", allowCredentials="true")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials="true")
 public class LessonService {
 	
 	@Autowired
@@ -29,6 +32,9 @@ public class LessonService {
 	
 	@Autowired
 	CourseService cs;
+	
+	@Autowired
+	LessonRepository repository;
 	
 	Person currentUser;
 	
@@ -44,11 +50,12 @@ public class LessonService {
 		Module module = ms.findModuleById(session, mid);
 
 		if(module!=null) {
-			lesson.setId(IdGenerator.generateId(LessonService.class));
-			if(lesson.getTopics()==null)
-				lesson.setTopics(new ArrayList<>());
-			module.getLessons().add(lesson);
-			return lesson;
+//			lesson.setId(IdGenerator.generateId(LessonService.class));
+//			if(lesson.getTopics()==null)
+//				lesson.setTopics(new ArrayList<>());
+//			module.getLessons().add(lesson);
+			lesson.setModule(module);
+			return repository.save(lesson);
 		}
 		return null;
 	}
@@ -72,19 +79,24 @@ public class LessonService {
 		currentUser = (Person) session.getAttribute("currentUser");
 		if(currentUser==null) return null;
 		
-		List<Course> courses = cs.findAllCourses(session);
-		if(courses==null)
-			return null;
-		
-		for(Course course: courses) {
-			for(Module module: course.getModules()) {
-				for(Lesson lesson: module.getLessons()) {
-					if(lesson.getId()==lid)
-						return lesson;
-				}
-			}
-		}
-		return null;
+//		List<Course> courses = cs.findAllCourses(session);
+//		if(courses==null)
+//			return null;
+//		
+//		for(Course course: courses) {
+//			for(Module module: course.getModules()) {
+//				for(Lesson lesson: module.getLessons()) {
+//					if(lesson.getId()==lid)
+//						return lesson;
+//				}
+//			}
+//		}
+//		return null;
+		Optional<Lesson> op = repository.findById(lid);
+		Lesson lesson = null;
+		if (op.isPresent())
+			lesson = op.get();
+		return lesson;
 	}
 	
 	@PutMapping("/api/lessons/{lid}")
@@ -94,13 +106,16 @@ public class LessonService {
 		currentUser = (Person) session.getAttribute("currentUser");
 		if(currentUser==null) return null;
 		
-		Lesson les= findLessonById(session, lid);
-		if(les!=null) {
-			les.setTopics(lesson.getTopics());
-			les.setTitle(lesson.getTitle());
-			return les;
-		}
-		return null;
+//		Lesson les= findLessonById(session, lid);
+//		if(les!=null) {
+//			les.setTopics(lesson.getTopics());
+//			les.setTitle(lesson.getTitle());
+//			return les;
+//		}
+//		return null;
+		Lesson les = findLessonById(session,lid);
+		les.setTitle(lesson.getTitle());
+		return repository.save(les);
 	}
 
 	@DeleteMapping("/api/lessons/{lid}")
@@ -114,18 +129,19 @@ public class LessonService {
 		if(courses==null)
 			return null;
 
-		for(Course course: courses) {
-			for(Module module: course.getModules()) {
-				for(Lesson lesson: module.getLessons()) {
-					if(lesson.getId()==lid) {
-						module.getLessons().remove(lesson);
-						return module.getLessons();
-					}
-				}
-			}
-		}
+//		for(Course course: courses) {
+//			for(Module module: course.getModules()) {
+//				for(Lesson lesson: module.getLessons()) {
+//					if(lesson.getId()==lid) {
+//						module.getLessons().remove(lesson);
+//						return module.getLessons();
+//					}
+//				}
+//			}
+//		}
+		repository.deleteById(lid);
 
-		return null;
+		return findAllLessons(session, findLessonById(session, lid).getModule().getId());
 	}
 
 }

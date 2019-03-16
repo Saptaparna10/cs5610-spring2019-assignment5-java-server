@@ -2,19 +2,33 @@ package com.example.cs5610spring2019assignment5serverjava.models;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+@Entity
 public class Person {
 
-	private long id;
+	@Id  
+	@GeneratedValue
+	(strategy=GenerationType.IDENTITY)
+	private int id;
 	private String username;
 	private String password;
 	private String firstName;
 	private String lastName;
 	private String role; 
+	
+	@OneToMany(mappedBy="author",cascade=CascadeType.ALL,orphanRemoval=true, fetch = FetchType.LAZY)
 	private List<Course> courses;
-	
+
 	public Person() {};
-	
-	public Person(long id, String username, String firstName, String lastName, String role,  List<Course> courses) {
+
+	public Person(int id, String username, String firstName, String lastName, String role,  List<Course> courses) {
 		this.id = id;
 		this.username = username;
 		this.firstName = firstName;
@@ -22,17 +36,17 @@ public class Person {
 		this.role = role;
 		this.courses = courses;
 	}
-	
+
 	public String getRole() {
 		return role;
 	}
 	public void setRole(String role) {
 		this.role = role;
 	}
-	public long getId() {
+	public int getId() {
 		return id;
 	}
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 	public String getUsername() {

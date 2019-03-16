@@ -21,14 +21,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cs5610spring2019assignment5serverjava.models.Course;
 import com.example.cs5610spring2019assignment5serverjava.models.Person;
+import com.example.cs5610spring2019assignment5serverjava.repositories.CourseRepository;
+import com.example.cs5610spring2019assignment5serverjava.repositories.PersonRepository;
 
-
+//https://glacial-gorge-34114.herokuapp.com, 
 @RestController
-@CrossOrigin(origins = "https://glacial-gorge-34114.herokuapp.com", allowCredentials="true") 
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials="true") 
 public class CourseService {
 
 	@Autowired
 	UserService us;
+	
+	@Autowired
+	CourseRepository repository;
+	
+	@Autowired
+	PersonRepository prepository;
 
 	Person currentUser;
 
@@ -40,11 +48,15 @@ public class CourseService {
 		currentUser = (Person) session.getAttribute("currentUser");
 		if(currentUser==null) return null;
 		
-		course.setId(IdGenerator.generateId(CourseService.class));
-		if(course.getModules()==null)
-			course.setModules(new ArrayList<>());
-		currentUser.getCourses().add(course);
-		return currentUser.getCourses();
+//		course.setId(IdGenerator.generateId(CourseService.class));
+//		if(course.getModules()==null)
+//			course.setModules(new ArrayList<>());
+//		currentUser.getCourses().add(course);
+		course.setAuthor(currentUser);
+		repository.save(course);
+		
+		return prepository.findById(currentUser.getId()).get().getCourses();
+		
 	}
 
 	@GetMapping("/api/courses")
@@ -60,10 +72,14 @@ public class CourseService {
 		currentUser = (Person) session.getAttribute("currentUser");
 		if(currentUser==null) return null;
 		
-		for(Course c : currentUser.getCourses())
-			if(c.getId() == id)
-				return c;
-		return null;
+//		for(Course c : currentUser.getCourses())
+//			if(c.getId() == id)
+//				return c;
+		Optional<Course> op = repository.findById(id);
+		Course course = null;
+		if (op.isPresent())
+			course = op.get();
+		return course;
 
 	}
 
@@ -74,11 +90,12 @@ public class CourseService {
 		currentUser = (Person) session.getAttribute("currentUser");
 		if(currentUser==null) return null;
 		
-		currentUser.setCourses(currentUser.getCourses().stream()
-				.filter(course -> course.getId() != courseId)
-				.collect(Collectors.toList()));
+//		currentUser.setCourses(currentUser.getCourses().stream()
+//				.filter(course -> course.getId() != courseId)
+//				.collect(Collectors.toList()));
 		
-		return currentUser.getCourses();
+		repository.deleteById(courseId);
+		return  prepository.findById(currentUser.getId()).get().getCourses();
 	}
 
 	@PutMapping("/api/courses/{id}")
@@ -86,15 +103,24 @@ public class CourseService {
 		currentUser = (Person) session.getAttribute("currentUser");
 		if(currentUser==null) return null;
 		
+//		Course c = findCourseById(session, cid);
+//
+//		if(c!=null) {
+//			c.setTitle(course.getTitle());
+//			c.setModules(course.getModules());
+//			return c;
+//		}
+//
+//		return null;
+		
 		Course c = findCourseById(session, cid);
-
 		if(c!=null) {
 			c.setTitle(course.getTitle());
-			c.setModules(course.getModules());
-			return c;
+			//c.setModules(course.getModules());
 		}
-
-		return null;
+		
+		repository.save(c);
+		return c;
 	}
 
 }

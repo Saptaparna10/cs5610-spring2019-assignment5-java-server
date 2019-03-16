@@ -13,26 +13,31 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cs5610spring2019assignment5serverjava.models.Person;
+import com.example.cs5610spring2019assignment5serverjava.repositories.PersonRepository;
 
 @RestController
-@CrossOrigin(origins = "https://glacial-gorge-34114.herokuapp.com", allowCredentials="true") 
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials="true") 
 public class UserService {
 
-	List<Person> users = new ArrayList<Person>();
+	//List<Person> users = new ArrayList<Person>();
+	@Autowired
+	PersonRepository repository;
 
 	@PostMapping("/api/register")
 	public Person register(@RequestBody Person newUser,
 			HttpSession session) {
+		
+		List<Person> users= findAllUsers();
 		
 		for (Person user : users) {
 			if(user.getUsername().equals(newUser.getUsername())) {
 				return null;
 			}
 		}
-		newUser.setId(IdGenerator.generateId(CourseService.class));
-		newUser.setCourses(new ArrayList<>());
-		users.add(newUser);
-		return newUser;
+		//newUser.setId(IdGenerator.generateId(CourseService.class));
+		//newUser.setCourses(new ArrayList<>());
+		//users.add(newUser);
+		return repository.save(newUser);
 	}
 
 	@GetMapping("/api/profile")
@@ -49,6 +54,8 @@ public class UserService {
 	@PostMapping("/api/login")
 	public Person login(	@RequestBody Person credentials,
 			HttpSession session) {
+		
+		List<Person> users= findAllUsers();
 		for (Person user : users) {
 			if( user.getUsername().equals(credentials.getUsername())
 					&& user.getPassword().equals(credentials.getPassword())) {
@@ -61,16 +68,23 @@ public class UserService {
 
 	@GetMapping("/api/users")
 	List<Person> findAllUsers() {
-		return users;
+		return (List<Person>) repository.findAll();
 	}
 
 	@GetMapping("/api/users/{id}")
 	Person findUserById(@PathVariable("id") int id) {
-		for(Person user : users)
-			if(user.getId() == id)
-				return user;
-		return null;
-
+		
+//		List<Person> users= findAllUsers();
+//		for(Person user : users)
+//			if(user.getId() == id)
+//				return user;
+//		return null;
+		
+		Optional<Person> op = repository.findById(id);
+		Person user = null;
+		if (op.isPresent())
+			user = op.get();
+		return user;
 	}
 
 }
