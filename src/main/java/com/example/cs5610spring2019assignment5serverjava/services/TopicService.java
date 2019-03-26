@@ -26,7 +26,7 @@ import com.example.cs5610spring2019assignment5serverjava.repositories.LessonRepo
 import com.example.cs5610spring2019assignment5serverjava.repositories.TopicRepository;
 
 @RestController
-@CrossOrigin(origins = "https://das-saptaparna-assignment5.herokuapp.com", allowCredentials="true")
+@CrossOrigin(origins = "https://cs5610-angular-client.herokuapp.com", allowCredentials="true")
 public class TopicService {
 	
 	@Autowired
@@ -40,6 +40,9 @@ public class TopicService {
 	
 	@Autowired
 	TopicRepository repository;
+	
+	@Autowired
+	LessonRepository lessonRepository;
 	
 	Person currentUser;
 	
@@ -155,6 +158,21 @@ public class TopicService {
 		return findAllTopics(session, findTopicById(session, tid).getLesson().getId());
 	}
 
+	
+	
+	@GetMapping("/api/student/lessons/{lid}/topics")
+	public List<Topic> findAllTopicsForStudents(@PathVariable("lid") int lid){
+
+		Optional<Lesson> op = lessonRepository.findById(lid);
+		
+		if(op.isPresent()) {
+			Lesson lesson = op.get();
+			return lesson.getTopics();
+		}
+		
+		return null;
+		
+	}
 
 
 }

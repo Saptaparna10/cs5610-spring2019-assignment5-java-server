@@ -31,8 +31,19 @@ public class Widget {
 	/**list--*/
 	private String listItems;
 	private String listType;
+	/**---Link--**/
+	private String href;
 	
 	
+	public String getHref() {
+		return href;
+	}
+	public void setHref(String href) {
+		this.href = href;
+	}
+	public String getListType() {
+		return listType;
+	}
 	public String getSrc() {
 		return src;
 	}

@@ -26,7 +26,7 @@ import com.example.cs5610spring2019assignment5serverjava.repositories.PersonRepo
 
 //https://glacial-gorge-34114.herokuapp.com, 
 @RestController
-@CrossOrigin(origins = "https://das-saptaparna-assignment5.herokuapp.com", allowCredentials="true") 
+@CrossOrigin(origins = "https://cs5610-angular-client.herokuapp.com", allowCredentials="true") 
 public class CourseService {
 
 	@Autowired
@@ -121,6 +121,22 @@ public class CourseService {
 		
 		repository.save(c);
 		return c;
+	}
+	
+	@GetMapping("/api/student/courses")
+	public Iterable<Course> findAllCoursesForStudents(){
+		return repository.findAll();
+	}
+	
+	@GetMapping("/api/student/courses/{id}")
+	Course findCourseById(@PathVariable("id") int id) {
+
+		Optional<Course> op = repository.findById(id);
+		Course course = null;
+		if (op.isPresent())
+			course = op.get();
+		return course;
+
 	}
 
 }

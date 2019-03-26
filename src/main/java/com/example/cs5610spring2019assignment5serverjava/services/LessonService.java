@@ -24,7 +24,7 @@ import com.example.cs5610spring2019assignment5serverjava.repositories.LessonRepo
 import com.example.cs5610spring2019assignment5serverjava.repositories.ModuleRepository;
 
 @RestController
-@CrossOrigin(origins = "https://das-saptaparna-assignment5.herokuapp.com", allowCredentials="true")
+@CrossOrigin(origins = "https://cs5610-angular-client.herokuapp.com", allowCredentials="true")
 public class LessonService {
 	
 	@Autowired
@@ -35,6 +35,12 @@ public class LessonService {
 	
 	@Autowired
 	LessonRepository repository;
+	
+	@Autowired
+	LessonRepository lessonRepository;
+	
+	@Autowired
+	ModuleRepository moduleRepository;
 	
 	Person currentUser;
 	
@@ -143,5 +149,17 @@ public class LessonService {
 
 		return findAllLessons(session, findLessonById(session, lid).getModule().getId());
 	}
+	
+	@GetMapping("/api/student/modules/{mid}/lessons")
+	public List<Lesson> findAllLessonsForStudents(@PathVariable("mid") int mid){
+		Optional<Module> op = moduleRepository.findById(mid);
+		if (op.isPresent()) {
+			Module mod = op.get();
+			return mod.getLessons();
+		}
+		return null;
+		
+	}
+
 
 }

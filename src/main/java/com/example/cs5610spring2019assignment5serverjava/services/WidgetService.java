@@ -13,7 +13,7 @@ import com.example.cs5610spring2019assignment5serverjava.repositories.WidgetRepo
 
 
 @RestController
-@CrossOrigin(origins = "https://das-saptaparna-assignment5.herokuapp.com", allowCredentials="true")
+@CrossOrigin(origins = "https://cs5610-angular-client.herokuapp.com", allowCredentials="true")
 public class WidgetService {
 
 	@Autowired
@@ -117,5 +117,20 @@ public class WidgetService {
 		}
 		return null;
 	}
+	
+	@GetMapping("/api/student/topics/{tid}/widgets")
+	public List<Widget> findAllWidgetsForStudent(@PathVariable("tid") int tid){
+
+		Optional<Topic> op = topicRepository.findById(tid);
+		
+		if(op.isPresent()) {
+			Topic topic = op.get();
+			return topic.getWidgets();
+		}
+		
+		return null;
+		
+	}
+
 	
 }

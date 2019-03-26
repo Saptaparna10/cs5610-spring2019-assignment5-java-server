@@ -21,10 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.cs5610spring2019assignment5serverjava.models.Course;
 import com.example.cs5610spring2019assignment5serverjava.models.Module;
 import com.example.cs5610spring2019assignment5serverjava.models.Person;
+import com.example.cs5610spring2019assignment5serverjava.repositories.CourseRepository;
 import com.example.cs5610spring2019assignment5serverjava.repositories.ModuleRepository;
 
 @RestController
-@CrossOrigin(origins = "https://das-saptaparna-assignment5.herokuapp.com", allowCredentials="true")
+@CrossOrigin(origins = "https://cs5610-angular-client.herokuapp.com", allowCredentials="true")
 public class ModuleService {
 
 	@Autowired
@@ -32,6 +33,9 @@ public class ModuleService {
 	
 	@Autowired
 	ModuleRepository repository;
+	
+	@Autowired
+	CourseRepository courseRepository;
 
 	Person currentUser;
 	
@@ -143,5 +147,16 @@ public class ModuleService {
 //		return null;
 		repository.deleteById(mid);
 		return findAllModules(session, findModuleById(session, mid).getCourse().getId());
+	}
+	
+	@GetMapping("/api/student/courses/{cid}/modules")
+	public List<Module> findAllModulesForStudents(@PathVariable("cid") int cid){
+		
+		Optional<Course> op = courseRepository.findById(cid);
+		if (op.isPresent()) {
+			Course course = op.get();
+			return course.getModules();
+		}
+		return null;
 	}
 }
