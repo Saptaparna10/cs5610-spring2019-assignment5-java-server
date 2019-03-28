@@ -159,4 +159,10 @@ public class ModuleService {
 		}
 		return null;
 	}
+	
+	@GetMapping("/api/student/modules")
+	public List<Module> findAllModules(){
+		
+		return (List<Module>) repository.findAll();
+	}
 }

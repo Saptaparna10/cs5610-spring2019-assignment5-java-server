@@ -161,5 +161,10 @@ public class LessonService {
 		
 	}
 
+	@GetMapping("/api/student/lessons")
+	public List<Lesson> findAllLessons(){
+		return (List<Lesson>) lessonRepository.findAll();
+		
+	}
 
 }
